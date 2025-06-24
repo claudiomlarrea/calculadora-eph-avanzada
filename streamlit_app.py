@@ -6,8 +6,8 @@ import fitz
 import re
 from docx import Document
 
-st.set_page_config(page_title="Calculadora EPH – Informe Ampliado", layout="wide")
-st.title("📊 Calculadora EPH – Informe Word con Análisis Cuantitativo Ampliado")
+st.set_page_config(page_title="Calculadora EPH – Informe Word + Excel", layout="wide")
+st.title("📊 Calculadora EPH – Informe Completo para Hogares e Individuos")
 
 anio = st.selectbox("📅 Seleccioná el año de la base", [str(a) for a in range(2017, 2025)])
 hogares_file = st.file_uploader("🏠 Base de Hogares anual (.xlsx)", type="xlsx")
@@ -91,9 +91,18 @@ if hogares_file and individuos_file and instructivo_pdf:
     resumen_hogar = df_hogar.describe(include="all").transpose()
     resumen_ind = df_ind.describe(include="all").transpose()
 
+    # Excel con ambos resúmenes
+    output_excel = io.BytesIO()
+    with pd.ExcelWriter(output_excel, engine="openpyxl") as writer:
+        resumen_hogar.to_excel(writer, sheet_name="Resumen Hogares")
+        resumen_ind.to_excel(writer, sheet_name="Resumen Individuos")
+    output_excel.seek(0)
+
+    # Word con texto + análisis adicional
     output_word = generar_informe_word(anio, resumen_hogar, resumen_ind)
 
-    st.success("✅ Informe generado.")
-    st.download_button("📥 Descargar Informe Word Ampliado", data=output_word, file_name=f"informe_eph_{anio}_ampliado.docx")
+    st.success("✅ Informes generados correctamente.")
+    st.download_button("📥 Descargar Excel", data=output_excel, file_name=f"informe_eph_{anio}.xlsx")
+    st.download_button("📥 Descargar Informe Word", data=output_word, file_name=f"informe_eph_{anio}_ampliado.docx")
 else:
-    st.info("📥 Subí las bases de hogares, individuos y el instructivo PDF para generar el informe.")
+    st.info("📥 Subí las bases de hogares, individuos y el instructivo PDF para generar los informes.")
