@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import io
@@ -8,7 +9,7 @@ from docx import Document
 st.set_page_config(page_title="Calculadora EPH – Informe Ampliado", layout="wide")
 st.title("📊 Calculadora EPH – Informe Word con Análisis Cuantitativo Ampliado")
 
-anio = st.selectbox("📅 Seleccioná el año de la base", ["2017", "2018", "2019", "2020", "2021", "2022", "2023"])
+anio = st.selectbox("📅 Seleccioná el año de la base", [str(a) for a in range(2017, 2025)])
 hogares_file = st.file_uploader("🏠 Base de Hogares anual (.xlsx)", type="xlsx")
 individuos_file = st.file_uploader("👤 Base de Individuos anual (.xlsx)", type="xlsx")
 instructivo_pdf = st.file_uploader("📄 Instructivo PDF", type="pdf")
@@ -22,7 +23,7 @@ def extraer_diccionario_desde_pdf(pdf_file):
     for page in doc:
         text += page.get_text()
     doc.close()
-    regex = re.compile(r"^(\w{2,})\s+[NC]\(\d+\)\s+(.+)$", re.MULTILINE)
+    regex = re.compile(r"^(\w{2,})\s+[NC]\(\d+)\s+(.+)$", re.MULTILINE)
     matches = regex.findall(text)
     return {codigo.strip(): limpiar_descripcion_variable(desc) for codigo, desc in matches}
 
