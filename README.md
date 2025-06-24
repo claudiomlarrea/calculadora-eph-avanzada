@@ -26,7 +26,6 @@ Esta calculadora permite subir las bases de hogares, individuos e instructivo de
 - `requirements.txt`: librerías necesarias
 - `.gitignore`: configuración para Git
 
-
 ## 📁 Contenido del repositorio
 
 - `streamlit_app.py`: interfaz principal
