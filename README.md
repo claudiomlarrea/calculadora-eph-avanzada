@@ -25,3 +25,11 @@ Esta calculadora permite subir las bases de hogares, individuos e instructivo de
 - `analyzer.py`: funciones para los 7 análisis
 - `requirements.txt`: librerías necesarias
 - `.gitignore`: configuración para Git
+
+
+## 📁 Contenido del repositorio
+
+- `streamlit_app.py`: interfaz principal
+- `analyzer.py`: funciones para los 7 análisis
+- `requirements.txt`: librerías necesarias
+- `.gitignore`: configuración para Git
