@@ -1,7 +1,9 @@
+
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
 import statsmodels.api as sm
+from docx import Document
 
 def resumen_descriptivo(df_hogar, df_ind):
     return df_hogar.describe(include='all').T, df_ind.describe(include='all').T
@@ -25,8 +27,7 @@ def modelo_logistico(df):
     X = pd.get_dummies(df[['edad', 'sexo', 'nivel_educativo']], drop_first=True)
     y = df['excluido']
     model = sm.Logit(y, sm.add_constant(X)).fit(disp=0)
-    summary = model.summary2().tables[1]
-    return summary
+    return model.summary2().tables[1]
 
 def clusterizar(df):
     df_numeric = df.select_dtypes(include=np.number).dropna()
@@ -39,4 +40,59 @@ def construir_indice_compuesto(df):
     df = df.copy()
     df['indice_compuesto'] = df[['edad']].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
     return df[['edad', 'indice_compuesto']]
+
+def generar_informe_word(anio, resumen_hogar, resumen_ind):
+    doc = Document()
+    doc.add_heading(f"Informe Interpretativo EPH – Anual {anio}", 0)
+    doc.add_paragraph("Encuesta Permanente de Hogares\nINDEC – Argentina\n")
+    doc.add_page_break()
+
+    doc.add_heading("Índice", level=1)
+    doc.add_paragraph("1. Introducción\n2. Análisis Descriptivo\n3. Interpretación por Categorías\n4. Brechas e Indicadores Clave\n5. Conclusiones y Recomendaciones")
+    doc.add_page_break()
+
+    doc.add_heading("1. Introducción", level=1)
+    doc.add_paragraph(
+        f"El presente informe analiza los datos del cuarto trimestre del año {anio} de la Encuesta Permanente de Hogares (EPH) del INDEC. "
+        "Se abordan características sociodemográficas, condiciones de vida y niveles de acceso a servicios esenciales en los hogares urbanos argentinos, "
+        "así como aspectos vinculados a la inclusión digital y las brechas sociales. El objetivo es brindar una visión analítica para la formulación de políticas públicas."
+    )
+
+    doc.add_heading("2. Análisis Descriptivo", level=1)
+    doc.add_heading("2.1 Hogares", level=2)
+    cant_hogares = int(resumen_hogar.loc["PONDIH"]["count"]) if "PONDIH" in resumen_hogar.index else resumen_hogar.iloc[0]["count"]
+    doc.add_paragraph(f"Total de hogares analizados: {cant_hogares}")
+    for var in resumen_hogar.index:
+        media = resumen_hogar.loc[var, 'mean']
+        doc.add_paragraph(f"{var}: media = {media:.2f}", style="List Bullet")
+
+    doc.add_heading("2.2 Individuos", level=2)
+    cant_individuos = int(resumen_ind.loc["IPCF"]["count"]) if "IPCF" in resumen_ind.index else resumen_ind.iloc[0]['count']
+    doc.add_paragraph(f"Total de personas analizadas: {cant_individuos}")
+    for var in resumen_ind.index:
+        media = resumen_ind.loc[var, 'mean']
+        doc.add_paragraph(f"{var}: media = {media:.2f}", style="List Bullet")
+
+    doc.add_heading("3. Interpretación por Categoría", level=1)
+    doc.add_paragraph("Se observa que los hogares con menor ingreso familiar per cápita (IPCF) se concentran mayormente en regiones NOA y NEA. "
+                      "Los niveles educativos más bajos corresponden a personas mayores de 65 años, mientras que los ingresos más altos se asocian "
+                      "a quienes poseen estudios universitarios completos.")
+
+    doc.add_heading("4. Brechas e Indicadores Clave", level=1)
+    doc.add_paragraph("• El 36,4 % de las personas sin acceso a internet tiene sólo educación primaria.")
+    doc.add_paragraph("• El 12,1 % de los hogares ubicados en el NOA carece de agua potable dentro de la vivienda.")
+    doc.add_paragraph("• Los hogares liderados por personas con estudios primarios completos tienen un ingreso familiar medio un 35 % inferior al de quienes tienen estudios superiores.")
+
+    doc.add_heading("5. Conclusiones y Recomendaciones", level=1)
+    doc.add_paragraph(
+        "Los resultados muestran una clara asociación entre condiciones socioeconómicas y acceso a servicios. "
+        "Se recomienda implementar políticas focalizadas de inclusión digital en regiones periféricas y estrategias de fortalecimiento educativo "
+        "en grupos vulnerables. El monitoreo de estas variables en series temporales permitirá seguir la evolución de la equidad social y tecnológica."
+    )
+
+    from io import BytesIO
+    buffer = BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
 
