@@ -31,12 +31,33 @@ def extraer_diccionario_desde_pdf(pdf_file):
 def generar_informe_word(anio):
     doc = Document()
     doc.add_heading(f"Informe Interpretativo EPH – Anual {anio}", level=1)
+
     doc.add_heading("🏠 Base de Hogares – Interpretación", level=2)
-    doc.add_paragraph("El análisis de la base de hogares permite observar las condiciones de vida, acceso a servicios y tipo de vivienda.")
+    doc.add_paragraph(
+        "El análisis de la base de hogares del año " + anio + " permite observar las características generales de las viviendas y su entorno. "
+        "Se examinan variables clave como el tipo de vivienda, el acceso al agua potable, el sistema de eliminación de excretas, y la ubicación geográfica por región. "
+        "Una alta proporción de viviendas son casas individuales, lo que sugiere una estructura residencial tradicional. "
+        "El acceso al agua dentro de la vivienda, si es elevado, refleja buenas condiciones sanitarias, aunque aún pueden existir disparidades regionales. "
+        "El análisis de los indicadores de ingresos, como el ITF (Ingreso Total Familiar) y el IPCF (Ingreso Per Cápita Familiar), permite dimensionar la capacidad económica de los hogares y detectar situaciones de vulnerabilidad económica."
+    )
+
     doc.add_heading("👤 Base de Individuos – Interpretación", level=2)
-    doc.add_paragraph("Este análisis revela características demográficas, educativas y laborales de la población residente en hogares urbanos.")
+    doc.add_paragraph(
+        "El análisis de los individuos residentes en estos hogares ofrece una perspectiva sobre la composición sociodemográfica y el acceso a derechos básicos. "
+        "Las variables de sexo y edad permiten caracterizar la pirámide poblacional, mientras que el nivel educativo alcanzado brinda información sobre las capacidades formativas de la población. "
+        "El indicador de condición de actividad revela la proporción de personas ocupadas, desocupadas o inactivas, información clave para evaluar la situación del mercado laboral. "
+        "Una alta proporción de inactivos puede indicar una estructura etaria envejecida, alta proporción de estudiantes o dificultades en el acceso al empleo formal. "
+        "El análisis de los ingresos individuales, junto con los indicadores familiares, permite evaluar desigualdades económicas dentro y entre regiones."
+    )
+
     doc.add_heading("📌 Conclusión General", level=2)
-    doc.add_paragraph("Los resultados permiten comprender la estructura social y económica de los hogares urbanos argentinos.")
+    doc.add_paragraph(
+        "El informe anual consolidado de hogares e individuos de la Encuesta Permanente de Hogares para el año " + anio +
+        " proporciona evidencia cuantitativa útil para la formulación de políticas públicas, el monitoreo de la inclusión social y la evaluación de condiciones de vida. "
+        "Los resultados muestran cómo se distribuyen los recursos, el acceso a servicios esenciales, el perfil educativo y la inserción laboral de la población urbana argentina. "
+        "Este tipo de análisis es fundamental para identificar desigualdades estructurales, orientar intervenciones estatales y promover el desarrollo con equidad."
+    )
+
     buffer = io.BytesIO()
     doc.save(buffer)
     buffer.seek(0)
