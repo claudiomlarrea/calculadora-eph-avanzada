@@ -125,7 +125,17 @@ def generar_archivo_excel(df_hogar, df_ind, cols_hogar, cols_ind):
         df_hogar.head(1000).to_excel(writer, sheet_name="Muestra Hogares", index=False)
         df_ind.head(1000).to_excel(writer, sheet_name="Muestra Individuos", index=False)
         
-        # Análisis adicionales si hay datos suficientes
+        
+        # Cuadros generales faltantes
+        try:
+            from analyzer import generar_tablas_cuadro_general
+            cuadros_generales = generar_tablas_cuadro_general(df_merged)
+            for nombre, tabla in cuadros_generales.items():
+                tabla.to_excel(writer, sheet_name=nombre[:30], index=False)
+        except Exception as e:
+            st.warning(f"No se pudieron generar todos los cuadros adicionales: {str(e)}")
+
+# Análisis adicionales si hay datos suficientes
         try:
             # Cruces de variables (si existen las columnas necesarias)
             if any('sexo' in col.lower() for col in df_ind.columns):
