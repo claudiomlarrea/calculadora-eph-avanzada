@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
@@ -44,11 +43,17 @@ def construir_indice_compuesto(df):
 def generar_informe_word(anio, resumen_hogar, resumen_ind):
     doc = Document()
     doc.add_heading(f"Informe Interpretativo EPH – Anual {anio}", 0)
-    doc.add_paragraph("Encuesta Permanente de Hogares\nINDEC – Argentina\n")
+    doc.add_paragraph("Encuesta Permanente de Hogares
+INDEC – Argentina
+")
     doc.add_page_break()
 
     doc.add_heading("Índice", level=1)
-    doc.add_paragraph("1. Introducción\n2. Análisis Descriptivo\n3. Interpretación por Categorías\n4. Brechas e Indicadores Clave\n5. Conclusiones y Recomendaciones")
+    doc.add_paragraph("1. Introducción
+2. Análisis Descriptivo
+3. Interpretación por Categorías
+4. Brechas e Indicadores Clave
+5. Conclusiones y Recomendaciones")
     doc.add_page_break()
 
     doc.add_heading("1. Introducción", level=1)
@@ -96,3 +101,7 @@ def generar_informe_word(anio, resumen_hogar, resumen_ind):
     buffer.seek(0)
     return buffer
 
+# Adaptación con nuevo nombre que espera streamlit_app.py
+def generar_informe_word_completo(anio, df_hogar, df_ind, mapa_variables):
+    resumen_hogar, resumen_ind = resumen_descriptivo(df_hogar, df_ind)
+    return generar_informe_word(anio, resumen_hogar, resumen_ind)
