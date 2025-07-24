@@ -40,7 +40,20 @@ anio = st.selectbox(
 )
 
 # Carga de archivos
-col1, col2, col3 = st.columns(3)
+# NUEVO BLOQUE DE CARGA DE ARCHIVOS
+
+# Carga de archivos (4 bases + instructivo)
+col1, col2 = st.columns(2)
+with col1:
+    hogares_file = st.file_uploader("🏠 Base de Hogares EPH (.xlsx)", type="xlsx", key="hogares_eph")
+    hogares_tic_file = st.file_uploader("🏠 Base de Hogares TIC (.xlsx)", type="xlsx", key="hogares_tic")
+with col2:
+    individuos_file = st.file_uploader("👤 Base de Individuos EPH (.xlsx)", type="xlsx", key="individuos_eph")
+    individuos_tic_file = st.file_uploader("👤 Base de Individuos TIC (.xlsx)", type="xlsx", key="individuos_tic")
+
+# Instructivo de variables
+instructivo_pdf = st.file_uploader("📄 Instructivo PDF de códigos", type="pdf")
+
 
 with col1:
     hogares_file = st.file_uploader("🏠 Base de Hogares (.xlsx)", type="xlsx")
@@ -144,6 +157,35 @@ def generar_archivo_excel(df_hogar, df_ind, cols_hogar, cols_ind):
     
     output_excel.seek(0)
     return output_excel
+
+
+# Procesamiento principal de las 4 bases
+if hogares_file and individuos_file and hogares_tic_file and individuos_tic_file and instructivo_pdf:
+
+    with st.spinner("🔄 Procesando archivos cargados..."):
+
+        try:
+            # Cargar bases
+            df_hogar = pd.read_excel(hogares_file)
+            df_ind = pd.read_excel(individuos_file)
+            df_hogar_tic = pd.read_excel(hogares_tic_file)
+            df_ind_tic = pd.read_excel(individuos_tic_file)
+
+            # Unir TIC a EPH por claves
+            claves_hogar = ['CODUSU', 'NRO_HOGAR', 'AGLOMERADO']
+            claves_ind = ['CODUSU', 'NRO_HOGAR', 'COMPONENTE', 'AGLOMERADO']
+
+            df_hogar_merged = pd.merge(df_hogar, df_hogar_tic, on=claves_hogar, how="left")
+            df_ind_merged = pd.merge(df_ind, df_ind_tic, on=claves_ind, how="left")
+
+            df_merged = pd.merge(df_ind_merged, df_hogar_merged, on=["CODUSU", "NRO_HOGAR", "AGLOMERADO"], how="left")
+
+            st.success(f"✅ Bases unidas correctamente. Registros: {len(df_merged):,}")
+
+        except Exception as e:
+            st.error(f"❌ Error al unir las bases: {e}")
+            st.stop()
+
 
 # Procesamiento principal
 if hogares_file and individuos_file and instructivo_pdf:
