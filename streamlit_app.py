@@ -252,7 +252,40 @@ if hogares_file and individuos_file and instructivo_pdf:
             help="Archivo Excel con todos los cálculos y análisis"
         )
     
-    # Vista previa de algunos análisis
+    
+    # Análisis complementarios
+    st.markdown("### 🧪 Análisis Complementarios")
+
+    with st.expander("🔍 Exclusión Digital por Sexo, Edad y Nivel Educativo"):
+        try:
+            df_excl = calcular_exclusion_digital(df_ind_proc)
+            st.dataframe(df_excl.head(10))
+        except Exception as e:
+            st.warning(f"No se pudo calcular exclusión digital: {str(e)}")
+
+    with st.expander("📉 Modelo Logístico para Exclusión Digital"):
+        try:
+            logit_summary = modelo_logistico(df_excl)
+            st.dataframe(logit_summary)
+        except Exception as e:
+            st.warning(f"No se pudo generar modelo logístico: {str(e)}")
+
+    with st.expander("🧬 Segmentación por Clúster (k=3)"):
+        try:
+            clust_df = clusterizar(df_ind_proc)
+            st.dataframe(clust_df.head(10))
+        except Exception as e:
+            st.warning(f"No se pudo realizar clusterización: {str(e)}")
+
+    with st.expander("📊 Índice Compuesto de Edad"):
+        try:
+            indice_df = construir_indice_compuesto(df_ind_proc)
+            st.dataframe(indice_df.head(10))
+        except Exception as e:
+            st.warning(f"No se pudo construir el índice compuesto: {str(e)}")
+
+
+# Vista previa de algunos análisis
     with st.expander("👀 Vista previa de análisis"):
         
         tab1, tab2 = st.tabs(["Resumen Hogares", "Resumen Individuos"])
