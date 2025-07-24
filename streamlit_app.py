@@ -5,6 +5,7 @@ import fitz
 import re
 from docx import Document
 from analyzer import (
+    definicion_exclusion_digital,
     resumen_descriptivo, 
     generar_cruces, 
     calcular_exclusion_digital,
@@ -125,17 +126,7 @@ def generar_archivo_excel(df_hogar, df_ind, cols_hogar, cols_ind):
         df_hogar.head(1000).to_excel(writer, sheet_name="Muestra Hogares", index=False)
         df_ind.head(1000).to_excel(writer, sheet_name="Muestra Individuos", index=False)
         
-        
-        # Cuadros generales faltantes
-        try:
-            from analyzer import generar_tablas_cuadro_general
-            cuadros_generales = generar_tablas_cuadro_general(df_merged)
-            for nombre, tabla in cuadros_generales.items():
-                tabla.to_excel(writer, sheet_name=nombre[:30], index=False)
-        except Exception as e:
-            st.warning(f"No se pudieron generar todos los cuadros adicionales: {str(e)}")
-
-# Análisis adicionales si hay datos suficientes
+        # Análisis adicionales si hay datos suficientes
         try:
             # Cruces de variables (si existen las columnas necesarias)
             if any('sexo' in col.lower() for col in df_ind.columns):
@@ -262,40 +253,7 @@ if hogares_file and individuos_file and instructivo_pdf:
             help="Archivo Excel con todos los cálculos y análisis"
         )
     
-    
-    # Análisis complementarios
-    st.markdown("### 🧪 Análisis Complementarios")
-
-    with st.expander("🔍 Exclusión Digital por Sexo, Edad y Nivel Educativo"):
-        try:
-            df_excl = calcular_exclusion_digital(df_ind_proc)
-            st.dataframe(df_excl.head(10))
-        except Exception as e:
-            st.warning(f"No se pudo calcular exclusión digital: {str(e)}")
-
-    with st.expander("📉 Modelo Logístico para Exclusión Digital"):
-        try:
-            logit_summary = modelo_logistico(df_excl)
-            st.dataframe(logit_summary)
-        except Exception as e:
-            st.warning(f"No se pudo generar modelo logístico: {str(e)}")
-
-    with st.expander("🧬 Segmentación por Clúster (k=3)"):
-        try:
-            clust_df = clusterizar(df_ind_proc)
-            st.dataframe(clust_df.head(10))
-        except Exception as e:
-            st.warning(f"No se pudo realizar clusterización: {str(e)}")
-
-    with st.expander("📊 Índice Compuesto de Edad"):
-        try:
-            indice_df = construir_indice_compuesto(df_ind_proc)
-            st.dataframe(indice_df.head(10))
-        except Exception as e:
-            st.warning(f"No se pudo construir el índice compuesto: {str(e)}")
-
-
-# Vista previa de algunos análisis
+    # Vista previa de algunos análisis
     with st.expander("👀 Vista previa de análisis"):
         
         tab1, tab2 = st.tabs(["Resumen Hogares", "Resumen Individuos"])
@@ -338,4 +296,13 @@ else:
     - 📋 **Conclusiones y recomendaciones** de política pública
     """)
     
-    st.info("👆 **Sube los archivos requeridos para comenzar el análisis**")
+    st.info("👆 **Sube los archivos requeridos para comenzar el análisis**"
+        # Tablas conceptuales (componentes, brechas e implicancias)
+        try:
+            conceptos = definicion_exclusion_digital()
+            for nombre, tabla in conceptos.items():
+                tabla.to_excel(writer, sheet_name=nombre[:30], index=False)
+        except Exception as e:
+            st.warning(f"No se pudieron generar las tablas teóricas de exclusión digital: {str(e)}")
+
+)
